@@ -3,15 +3,15 @@ Another Result pattern implemented in c#
 
 # Usage
 ```
-Result<bool> FileExist(string fileName)
+Result<User> GetUser(int ID)
 {
   try
   {
-    // if file exist
-    return true;
+    // if user exist
+    return user;
 
-    // if file does not exist
-    return false;
+    // if user does not exist
+    return null;
    }
    catch (Exception ex)
    {
@@ -21,17 +21,17 @@ Result<bool> FileExist(string fileName)
 ```
 
 ```
-Result<bool> exist = FileExist("cmd.exe");
+Result<User> exist = GetUser(123);
 
 // quick check
-if (exist.OrDefault(false))
+if (exist.OrDefault(null) != null)
 {
-   // file exist
+   // user exist
 }
 ```
 
 ```
-Result<bool> exist = FileExist("cmd.exe");
+Result<User> exist = GetUser(123);
 
 // complete check
 if (exist.hasError)
@@ -40,20 +40,20 @@ if (exist.hasError)
 }
 else if (exist.value)
 {
-   // file exist
+   // user exist
 }
 else
 {
-   // file does not exist
+   // user does not exist
 }
 ```
 
 ```
-Result<bool> exist = FileExist("cmd.exe");
+Result<User> exist = GetUser(123);
 
 // check using match with callbacks
 exist.Match(
-    () => {   if (exist.value) // file exist  } ,
+    () => {   if (exist.value) // user exist  } ,
     () => {  //error }
 );
 ```
