@@ -28,6 +28,10 @@ if (exist.OrDefault(false))
 {
    // file exist
 }
+```
+
+```
+Result<bool> exist = FileExist("cmd.exe");
 
 // complete check
 if (exist.hasError)
@@ -42,4 +46,14 @@ else
 {
    // file does not exist
 }
+```
+
+```
+Result<bool> exist = FileExist("cmd.exe");
+
+// check using match with callbacks
+exist.Match(
+    () => {   if (exist.value) // file exist  } ,
+    () => {  //error }
+);
 ```
