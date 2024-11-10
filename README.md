@@ -28,6 +28,12 @@ if (user.OrDefault(null) != null)
 {
    // user found
 }
+
+// quick check
+if (user.OrNull() != null)
+{
+   // user found
+}
 ```
 
 ```
