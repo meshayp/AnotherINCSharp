@@ -69,6 +69,7 @@
 
     public Result<V> onSuccess => isSuccess ? this : null;
     public bool isSuccess => error == null;
+    public bool hasError => error != null;
 
     public Result(V value, Error error, string message)
     {
