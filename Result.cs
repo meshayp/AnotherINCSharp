@@ -67,7 +67,6 @@
     public Error error = null;
     public string message;
 
-    public Result<V> onSuccess => isSuccess ? this : null;
     public bool isSuccess => error == null;
     public bool hasError => error != null;
 
