@@ -38,7 +38,7 @@ if (exist.hasError)
 {
     // error
 }
-else if (exist.OrDefault(false))
+else if (exist.value)
 {
    // file exist
 }
