@@ -1,7 +1,7 @@
   public class Error
   {
     public string message;
-    
+
     public Error(string msg = "Error")
     {
       this.message = msg;
@@ -11,7 +11,6 @@
       return message;
     }
 
-    public static implicit operator Result<V>(Error error) => new Result<V>(default(V), error, "Error");                                      // explicit cast from Error to Result
   }
 
   public class MultipleError : Error
@@ -23,18 +22,6 @@
       this.errors = errors;
     }
 
-    public static implicit operator Result<V>(List<Error> errors) => new Result<V>(default(V), new MultipleError(errors), "Multiple Errors"); // explicit cast from error list to Result
-  }
-
-  public class TimeOutError : Error
-  {
-    public TimeOutError() : base("Timeout")
-    {
-    }
-
-    public TimeOutError(string msg) : base(msg)
-    {
-    }
   }
 
   public class ExceptionError : Error
@@ -50,8 +37,17 @@
     {
       return base.ToString() + " : " + exception.ToString();
     }
+  }
 
-    public static implicit operator Result<V>(Exception ex) => new Result<V>(default(V), new ExceptionError(ex), "Exception");                // explicit cast from Exception to Result
+  public class TimeOutError : Error
+  {
+    public TimeOutError() : base("Timeout")
+    {
+    }
+
+    public TimeOutError(string msg) : base(msg)
+    {
+    }
   }
 
   public class Result
@@ -83,7 +79,10 @@
       this.message = message;
     }
 
-    public static implicit operator Result<V>(V val) => new Result<V>(val, null, "Success");                                                  // explicit cast from object to Result
+    public static implicit operator Result<V>(V val) => new Result<V>(val, null, "Success");                                                  // implicit cast from object to Result
+    public static implicit operator Result<V>(Error error) => new Result<V>(default(V), error, "Error");                                      // implicit cast from Error to Result
+    public static implicit operator Result<V>(List<Error> errors) => new Result<V>(default(V), new MultipleError(errors), "Multiple Errors"); // implicit cast from error list to Result
+    public static implicit operator Result<V>(Exception ex) => new Result<V>(default(V), new ExceptionError(ex), "Exception");                // implicit cast from Exception to Result
 
     public void Match(Action successAction, Action failAction)
     {
@@ -93,5 +92,10 @@
     public V OrDefault(V def)
     {
       return isSuccess ? value : def;
+    }
+
+    public V OrNull()
+    {
+      return isSuccess ? value : null;
     }
   }
