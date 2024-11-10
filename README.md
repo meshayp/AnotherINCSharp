@@ -21,39 +21,39 @@ Result<User> GetUser(int ID)
 ```
 
 ```
-Result<User> exist = GetUser(123);
+Result<User> user = GetUser(123);
 
 // quick check
-if (exist.OrDefault(null) != null)
+if (user.OrDefault(null) != null)
 {
-   // user exist
+   // user found
 }
 ```
 
 ```
-Result<User> exist = GetUser(123);
+Result<User> user = GetUser(123);
 
 // complete check
-if (exist.hasError)
+if (user.hasError)
 {
     // error
 }
-else if (exist.value)
+else if (user.value)
 {
-   // user exist
+   // user found
 }
 else
 {
-   // user does not exist
+   // user not found
 }
 ```
 
 ```
-Result<User> exist = GetUser(123);
+Result<User> user = GetUser(123);
 
 // check using match with callbacks
-exist.Match(
-    () => {   if (exist.value) // user exist  } ,
+user.Match(
+    () => {   if (user.value) // user found  } ,
     () => {  //error }
 );
 ```
