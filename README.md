@@ -23,14 +23,23 @@ Result<bool> FileExist(string fileName)
 ```
 Result<bool> exist = FileExist("cmd.exe");
 
+// quick check
 if (exist.OrDefault(false))
 {
-    // file exist
+   // file exist
+}
+
+// complete check
+if (exist.hasError)
+{
+    // error
+}
+else if (exist.OrDefault(false))
+{
+   // file exist
 }
 else
 {
-   // file does not exist or error
+   // file does not exist
 }
 ```
-
-
