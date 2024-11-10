@@ -10,6 +10,8 @@
     {
       return message;
     }
+
+    public static implicit operator Result<V>(Error error) => new Result<V>(default(V), error, "Error");                                      // explicit cast from Error to Result
   }
 
   public class MultipleError : Error
@@ -20,6 +22,8 @@
     {
       this.errors = errors;
     }
+
+    public static implicit operator Result<V>(List<Error> errors) => new Result<V>(default(V), new MultipleError(errors), "Multiple Errors"); // explicit cast from error list to Result
   }
 
   public class TimeOutError : Error
@@ -46,6 +50,8 @@
     {
       return base.ToString() + " : " + exception.ToString();
     }
+
+    public static implicit operator Result<V>(Exception ex) => new Result<V>(default(V), new ExceptionError(ex), "Exception");                // explicit cast from Exception to Result
   }
 
   public class Result
@@ -78,9 +84,6 @@
     }
 
     public static implicit operator Result<V>(V val) => new Result<V>(val, null, "Success");                                                  // explicit cast from object to Result
-    public static implicit operator Result<V>(Exception ex) => new Result<V>(default(V), new ExceptionError(ex), "Exception");                // explicit cast from Exception to Result
-    public static implicit operator Result<V>(Error error) => new Result<V>(default(V), error, "Error");                                      // explicit cast from Error to Result
-    public static implicit operator Result<V>(List<Error> errors) => new Result<V>(default(V), new MultipleError(errors), "Multiple Errors"); // explicit cast from error list to Result
 
     public void Match(Action successAction, Action failAction)
     {
