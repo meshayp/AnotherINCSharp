@@ -1,6 +1,8 @@
 ﻿// See https://aka.ms/new-console-template for more information
+using AnotherExtentions;
 using Sample;
 
+// Another Result Sample
 Console.WriteLine("Another Result Sample");
 
 Service service = new Service();
@@ -41,3 +43,14 @@ if (result.hasError)
 {
   Console.WriteLine($"get user -1000 returned an error");
 }
+
+
+// Another Extentions sample
+Dictionary<int, string> values = new Dictionary<int, string>();
+values.Add(1, "one");
+values.Add(2, "two");
+
+Result<string> value;
+value = values.Val(1); // return "one"
+value = values.Val(10); // return null
+value = values.ValOrSet(30, ()=> "thirthy");  // return "thirthy", dictionary will have 30 => "thirthy" key value pair

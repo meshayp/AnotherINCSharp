@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AnotherExtentions\AnotherExtentions.csproj" />
     <ProjectReference Include="..\AnotherResult\AnotherResult.csproj" />
   </ItemGroup>
 

@@ -27,9 +27,14 @@ namespace Sample
           throw new Exception("id very low");
         }
 
-        if (ID > 0)
+        if (ID > 1)
         {
           return new User() {  ID = ID };
+        }
+
+        if (ID == 1)
+        {
+          return Result.Success(new User() { ID = ID }, "Found the user");
         }
 
         if (ID == 0)
@@ -39,7 +44,7 @@ namespace Sample
 
         if (ID < 0)
         {
-          return new Error("Error finding user");
+          return new Error("Error finding user", 202);
         }
       }
       catch (Exception ex) {
