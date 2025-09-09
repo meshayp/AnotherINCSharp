@@ -1,7 +1,6 @@
 # Result
 Another Result pattern implemented in c#
 
-# Usage
 ```
 Result<User> GetUser(int ID)
 {
@@ -56,4 +55,19 @@ user.Match(
     () => {   if (user.value) // user found  } ,
     () => {  //error }
 );
+```
+
+# Extentions
+Another Extentions sample
+
+```
+Dictionary<int, string> values = new Dictionary<int, string>();
+values.Add(1, "one");
+values.Add(2, "two");
+
+Result<string> value;
+value = values.Val(1); // return "one"
+value = values.Val(10); // return null
+value = values.ValOrSet(30, ()=> "thirty");  // return "thirty", dictionary will have 30 => "thirty" key value pair
+value = values.ValOrSet(2, ()=> "two again");  // return "two"
 ```
