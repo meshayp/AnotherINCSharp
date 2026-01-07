@@ -2,59 +2,74 @@
 Another Result pattern implemented in c#
 
 ```
-Result<User> GetUser(int ID)
+UserService userService = new UserService();
+PasswordService passwordService = new PasswordService();
+
+// get "real" user
+Result<User> result = userService.Get(10);
+result.OrDefault(new User()).ID = 123;
+Console.WriteLine($"get user 10 result is {result}");
+
+if (result.OrDefault(null) != null)
 {
-  try
-  {
-    // if user exist
-    return user;
-
-    // if user does not exist
-    return null;
-   }
-   catch (Exception ex)
-   {
-      return ex;
-   }
+  Console.WriteLine($"get user 10 result is not null");
 }
-```
 
-```
-Result<User> user = GetUser(123);
+// get null object user
+result = userService.Get(0);
+result.OrDefault(new User()).ID = 10;
+Console.WriteLine($"get user 0 result is {result}");
 
-// quick check
-if (user.OrDefault(null) != null)
+result.Match((success) => Console.WriteLine($"get user 0 result is success") );
+
+// get error
+result = userService.Get(-10);
+result.OrDefault(new User()).ID = 10;
+Console.WriteLine($"get user -10 result is {result}");
+
+if (result.hasError)
 {
-   // user found
+  Console.WriteLine($"get user -10 returned an error");
 }
-```
 
-```
-Result<User> user = GetUser(123);
+// get exception error
+result = userService.Get(-1000);
+result.OrDefault(new User()).ID = 10;
+Console.WriteLine($"get user -1000 result is {result}");
 
-// complete check
-if (user.hasError)
+if (result.hasError)
 {
-    // error
+  Console.WriteLine($"get user -1000 returned an error {result.error}");
 }
-else if (user.value)
-{
-   // user found
-}
-else
-{
-   // user not found
-}
-```
 
-```
-Result<User> user = GetUser(123);
+Result.And(userService.Get(10), userService.Save(new User()))
+  .Match(
+    successAction: (res) => Console.WriteLine($"Or result is success"),
+    failAction: (res) => Console.WriteLine($"Or result is fail")
+  );
 
-// check using match with callbacks
-user.Match(
-    () => {   if (user.value) // user found  } ,
-    () => {  //error }
-);
+Result.All(userService.Get(10), userService.Get(-10), userService.Validate(new User()), userService.Save(new User()))
+  .Match(
+    successAction: (res) => Console.WriteLine($"Or result is success"),
+    failAction: (res) => Console.WriteLine($"Or result is fail")
+  );
+
+var resultID =
+  userService.Create(5)
+  .Then(user => userService.Validate(user.value))
+  .Match(
+    successAction: (res) => Console.WriteLine($"user valid {res.value}"),
+    failAction: (res) => Console.WriteLine($"user not valid: {res.error}")
+  )
+  .Then(user => passwordService.Validate(user.value.Password).Then(valid => user) )
+  .Then(user => userService.Save(user.value))
+  .Match(
+    successAction: (res) => Console.WriteLine($"user created and saved {res.value}"),
+    failAction: (res) => Console.WriteLine($"error creating user: {res.error}")
+  )
+  .Convert(user => user.ID);
+
+Console.WriteLine($"user creation result: {(resultID.isSuccess ? "success" : "error " + resultID.error.ToString())}");
 ```
 
 # Extentions
@@ -68,6 +83,30 @@ values.Add(2, "two");
 Result<string> value;
 value = values.Val(1); // return "one"
 value = values.Val(10); // return null
-value = values.ValOrSet(30, ()=> "thirty");  // return "thirty", dictionary will have 30 => "thirty" key value pair
-value = values.ValOrSet(2, ()=> "two again");  // return "two"
+value = values.ValOrSet(30, ()=> "thirthy");  // return "thirthy", dictionary will have 30 => "thirthy" key value pair
+value = values.ValOrSet(30, () => "thirthy and some");  // return "thirthy", dictionary will have 30 => "thirthy" key value pair
+
+List<string> text = new List<string>() { "one", "two", "three" }; 
+string joined = text.Join(","); // return "one,two,three"
+
+int count = 5;
+count.ForEach((i) => Console.WriteLine($"for each {i}")); // print 0,1,2,3,4
+
+TimeSpan span = 10.Seconds(); // return TimeSpan of 10 seconds
+TimeSpan span2 = 10.Minutes(); // return TimeSpan of 10 minutes
+
+Double percent = 50.PercentOf(100.0); // return 50.0
+Double percent2 = 50.0.AsPercentOf(200.0); // return 25.0
+
+DateTime then = DateTime.Now.AddMinutes(-10);
+TimeSpan SpenThenToNow = then.UntilNow(); // return TimeSpan of about 10 minutes
+
+bool exist = "Cat".In(new List<string>(){"Cat", "Cat2", "Cat3"}); // return true
+
+"HellowWorld".RegexMatches("[A-Z]").ForEach((m) => Console.WriteLine($"match {m}")); // print H and W
+
+Result<int> len =
+    await Result.Success(File.ReadAllText("Log.txt"))
+      .ThenAsync<string[]>(text => text.value.Split(','))
+      .ThenAsync<string[], int>(split => split.value.Length);
 ```
