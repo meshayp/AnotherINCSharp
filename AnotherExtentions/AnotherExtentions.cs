@@ -73,5 +73,6 @@ namespace AnotherExtentions
     {
       return strs.Contains(text, StringComparer.OrdinalIgnoreCase);
     }
+
   }
 }

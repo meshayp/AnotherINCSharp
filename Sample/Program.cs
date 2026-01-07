@@ -1,6 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using AnotherExtentions;
 using Sample;
+using System.Threading.Tasks;
 
 // Another Result Sample
 Console.WriteLine("Another Result Sample");
@@ -57,19 +58,22 @@ Result.All(userService.Get(10), userService.Get(-10), userService.Validate(new U
     failAction: (res) => Console.WriteLine($"Or result is fail")
   );
 
-var newUser = userService.Create(5);
-
 var resultID =
-newUser
-  .Then(user => userService.Validate(user))
-  .Then(user => passwordService.Validate(newUser.value.Password))
-  .Then(success => userService.Save(newUser.value))
+  userService.Create(5)
+  .Then(user => userService.Validate(user.value))
+  .Match(
+    successAction: (res) => Console.WriteLine($"user valid {res.value}"),
+    failAction: (res) => Console.WriteLine($"user not valid: {res.error}")
+  )
+  .Then(user => passwordService.Validate(user.value.Password).Then(valid => user) )
+  .Then(user => userService.Save(user.value))
   .Match(
     successAction: (res) => Console.WriteLine($"user created and saved {res.value}"),
     failAction: (res) => Console.WriteLine($"error creating user: {res.error}")
   )
   .Convert(user => user.ID);
 
+Console.WriteLine($"user creation result: {(resultID.isSuccess ? "success" : "error " + resultID.error.ToString())}");
 
 // Another Extentions sample
 Dictionary<int, string> values = new Dictionary<int, string>();
@@ -100,3 +104,13 @@ TimeSpan SpenThenToNow = then.UntilNow(); // return TimeSpan of about 10 minutes
 bool exist = "Cat".In(new List<string>(){"Cat", "Cat2", "Cat3"}); // return true
 
 "HellowWorld".RegexMatches("[A-Z]").ForEach((m) => Console.WriteLine($"match {m}")); // print H and W
+
+Result<int> len =
+    await Result.Success(File.ReadAllText("Log.txt"))
+      .ThenAsync<string[]>(text => text.value.Split(','))
+      .ThenAsync<string[], int>(split => split.value.Length);
+
+
+
+
+

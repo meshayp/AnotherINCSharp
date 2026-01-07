@@ -1,5 +1,17 @@
-
 using static System.Runtime.InteropServices.JavaScript.JSType;
+
+public static class TaskResult
+{
+  public static Task<Result<T>> ThenAsync<V, T>(this Task<Result<V>> task, Func<Result<V>, Result<T>> func)
+  {
+    return task.ContinueWith((t) => t.Result.Then(func));
+  }
+
+  public static Task<Result<T>> ThenAsync<V, T>(this Task<V> task, Func<Result<V>, Result<T>> func)
+  {
+    return task.ContinueWith((t) => Result.Success(t.Result).Then(func));
+  }
+}
 
 public class Result
 {
@@ -32,6 +44,20 @@ public class Result
   public Error error = null;
   public bool isSuccess => error == null;
   public bool hasError => error != null;
+
+  public static Result<T> Action<T>(Func<Result<T>> func)
+  {
+    Result<T> res = null;
+    try
+    {
+      res = func();
+    }
+    catch (Exception ex)
+    {
+      res = new ExceptionError(ex);
+    }
+    return res;
+  }
 }
 
 public class Result<V>
@@ -52,7 +78,10 @@ public class Result<V>
 
   public static implicit operator Result<V>(V val) => new Result<V>(val, null, "Success");                                                  // implicit cast from object to Result
   public static implicit operator Result<V>(Error error) => new Result<V>(default(V), error, "Error");                                      // implicit cast from Error to Result
-  public static implicit operator Result(Result<V> val) => new Result() { error = val.error , message = val.message };
+  public static implicit operator Result(Result<V> val) => new Result() { error = val.error, message = val.message };
+
+  //public Result<T> Then<T>(Func<Result<V>, Result<T>> func)
+
 
   public Result<V> Match(Action<Result<V>> successAction = null, Action<Result<V>> failAction = null)
   {
@@ -60,9 +89,14 @@ public class Result<V>
     return this;
   }
 
-  public Result<T> Then<T>(Func<V, Result<T>> func)
+  public Result<T> Then<T>(Func<Result<V>, Result<T>> func)
   {
     return isSuccess ? func(value) : new Result<T>(default(T), error, message);
+  }
+
+  public Task<Result<T>> ThenAsync<T>(Func<Result<V>, Result<T>> func)
+  {
+    return isSuccess ? Task.Run(() => func(value)) : Task.FromResult(new Result<T>(default(T), error, message));
   }
 
   public Result<T> Convert<T>(Func<V, T> func)
